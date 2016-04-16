@@ -57,16 +57,25 @@ class REDISLogWatcher(object):
     @classmethod
     def from_url(cls, url):
         """Create the log watcher from a URL"""
+        
+        
+        # Get the options out of the URL.
         result = urlparse(url)
         options = parse_qs(result.query)
         channel = options.get("channel", "")
         serializer = serializers[options.get("serialize", "json")]
+        
+        # Rebuild the URL without the query string.
+        args = list(result)
         if 'db' in options:
-            result.query = urlencode([('db', options['db'])])
+            args[4] = urlencode([('db', options['db'])])
         else:
-            result.query = ''
-        url = result.geturl()
-        return cls(url, channel, serializer.deserialize)
+            args[4] = ''
+        url = urlunparse(args)
+        
+        # Set up the object.
+        obj = cls(url, channel, serializer.deserialize)
+        return obj
     
     @property
     def logger(self):

@@ -56,7 +56,7 @@ class ZMQLogWatcher(threading.Thread):
     
     @classmethod
     def from_url(cls, url):
-        """docstring for from_url"""
+        """Make a log watcher with a URL."""
         
         # Get the options out of the URL.
         result = urlparse(url)
