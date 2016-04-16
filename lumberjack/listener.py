@@ -20,16 +20,6 @@ from .utils import ttyraw
 from .streams import SplitStreamHandler, ColorLevelFormatter, ColorStreamHandler
 from .filters import Filter
 
-class QueuedHandler(logging.Handler, object):
-    """Queued handler to return print statements to the main thread."""
-    def __init__(self):
-        super(QueuedHandler, self).__init__()
-        self.queue = collections.deque()
-        
-    def emit(self, record):
-        """Emit a record."""
-        self.queue.append(record)
-
 class Controller(object):
     """Keyboard input controller for the log listener."""
     
@@ -46,13 +36,10 @@ class Controller(object):
         if isinstance(logger, six.string_types):
             logger = logging.getLogger(logger)
         self.logger = logger
-        qh = QueuedHandler()
-        qh.setLevel(0)
-        self.queue = qh.queue
-        self.logger.addHandler(qh)
         self.handler = handler
+        self.logger.addHandler(handler)
         self.filter = Filter()
-        self.handler.addFilter(self.filter)
+        self.logger.addFilter(self.filter)
         self._shouldrun = threading.Event()
         
     def run(self):
@@ -60,38 +47,33 @@ class Controller(object):
         allowed_keys = "012345qf"
         allowed_letters = string.digits+string.letters+string.punctuation+" "
         self._shouldrun.set()
-        print("Press 0-5 to change logging level. Press q to quit. Press f to change filter.")
-        time.sleep(0.5)
         with ttyraw():
+            print("Press 0-5 to change logging level. Press q to quit. Press f to change filter.\r")
             while self._shouldrun.isSet():
                 ready,_,_ = select.select([sys.stdin],[],[],0.00001)
                 if sys.stdin in ready:
+                    self.handler.acquire()
                     key = sys.stdin.read(1).lower()
-                else:
-                    key = None
-                while len(self.queue):
-                    record = self.queue.popleft()
-                    if record.levelno >= self.handler.level:
-                        self.handler.handle(record)
-                if key is not None and key in allowed_keys:
-                    if key == "q":
-                        self._shouldrun.clear()
-                    elif key == "f":
-                        print("filter by: ", end="")
-                        name = ""
-                        new_key = sys.stdin.read(1).lower()
-                        while new_key in allowed_letters:
-                            sys.stdout.write(new_key)
-                            sys.stdout.flush()
-                            name += new_key
+                    if key is not None and key in allowed_keys:
+                        self.handler.acquire()
+                        if key == "q":
+                            self._shouldrun.clear()
+                        elif key == "f":
+                            print("filter by: ", end="")
+                            name = ""
                             new_key = sys.stdin.read(1).lower()
-                        sys.stdout.write("\r\n")
-                        sys.stdout.flush()
-                        self.filter.name = name
-                    else:
-                        print("Setting level to {0}\r".format(logging.getLevelName(int(key) * 10)))
-                        self.handler.setLevel(int(key) * 10)
-                        
+                            while new_key in allowed_letters:
+                                sys.stdout.write(new_key)
+                                sys.stdout.flush()
+                                name += new_key
+                                new_key = sys.stdin.read(1).lower()
+                            sys.stdout.write("\r\n")
+                            sys.stdout.flush()
+                            self.filter.name = name
+                        else:
+                            print("Setting level to {0}\r".format(logging.getLevelName(int(key) * 10)))
+                            self.handler.setLevel(int(key) * 10)
+                    self.handler.release()
         
     
 
@@ -133,8 +115,6 @@ def main(*args):
     opt = parser.parse_args(args)
     setup = SUPPORTED_SCHEMES[opt.url.scheme]
     print("Listening for logging messages on {0}".format(opt.url.geturl()))
-    print("Press ^C to stop.")
-    
     watcher = setup(opt.url.geturl())
     try:
         watcher.subscribe(opt.channel)

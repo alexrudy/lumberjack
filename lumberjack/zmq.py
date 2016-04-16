@@ -57,14 +57,19 @@ class ZMQLogWatcher(threading.Thread):
     @classmethod
     def from_url(cls, url):
         """docstring for from_url"""
+        
+        # Get the options out of the URL.
         result = urlparse(url)
         options = parse_qs(result.query)
         channel = options.get("channel", "")
         serializer = serializers[options.get("serialize", "json")]
         
+        # Rebuild the URL without the query string.
         args = list(result)
         args[4] = ''
         url = urlunparse(args)
+        
+        # Set up the object.
         obj = cls(url, channel, serializer.deserialize)
         obj.subscribe(channel)
         return obj
