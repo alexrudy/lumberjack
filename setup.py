@@ -1,5 +1,3 @@
-
-
 from setuptools import setup, find_packages
 import lumberjack
 
@@ -9,21 +7,26 @@ classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Logging",
     "Topic :: Utilities",
 ]
 
 with open("README.md", "r") as fp:
     long_description = fp.read()
 
-setup(name="lumberjack",
+setup(name="lumberjack-logging",
       version=lumberjack.__version__,
+      
       author="Alexander Rudy",
       author_email="alex.rudy@gmail.com",
+      
       packages=find_packages(),
+      
       description="Logging tools.",
       long_description=long_description,
       classifiers=classifiers,
-      requires=['six'],
+      
+      install_requires=['six'],
       package_data = {'lumberjack.config' : ['*.cfg'] },
       entry_points={
           'console_scripts':
