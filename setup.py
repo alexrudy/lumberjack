@@ -1,6 +1,6 @@
 
 
-from setuptools import setup
+from setuptools import setup, find_packages
 import lumberjack
 
 classifiers = [
@@ -19,7 +19,7 @@ setup(name="lumberjack",
       version=lumberjack.__version__,
       author="Alexander Rudy",
       author_email="alex.rudy@gmail.com",
-      py_modules=["lumberjack"],
+      packages=find_packages(),
       description="Logging tools.",
       long_description=long_description,
       classifiers=classifiers,
