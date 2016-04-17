@@ -90,9 +90,11 @@ class ColorLevelFormatter(logging.Formatter, object):
         color = self.get_color(record.levelno)
         if color is not None:
             record.clevelname = color_text(record.levelname, color)
+            record.cstart, record.cstop = color_text("=", color).split("=")
         else:
             record.clevelname = record.levelname
-        
+            record.cstart, record.cstop = color_text("=", 'default').split("=")
+        record.dstart, record.dstop = color_text("=", 'default').split("=")
         return super(ColorLevelFormatter, self).format(record)
         
 
