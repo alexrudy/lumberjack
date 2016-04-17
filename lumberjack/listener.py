@@ -104,6 +104,10 @@ SUPPORTED_SCHEMES = {
     'ipc' : setup_zmq,
 }
 
+def setup(mode, url):
+    """Set up a logger for a given mode and URL"""
+    return SUPPORTED_SCHEMES[mode](url)
+
 def main(*args):
     """Main function for argument parsing and running log watcher."""
     import argparse
@@ -113,9 +117,8 @@ def main(*args):
     parser.add_argument("--pickle", action='store_const', help="Use Pickle for seralizing.", dest="serializer", const='pickle')
     parser.add_argument("--json", action='store_const', help="Use Pickle for seralizing.", dest="serializer", const='json')
     opt = parser.parse_args(args)
-    setup = SUPPORTED_SCHEMES[opt.url.scheme]
     print("Listening for logging messages on {0}".format(opt.url.geturl()))
-    watcher = setup(opt.url.geturl())
+    watcher = setup(opt.url.scheme, opt.url.geturl())
     try:
         watcher.subscribe(opt.channel)
         watcher.start()
@@ -126,4 +129,7 @@ def main(*args):
     finally:
         watcher.stop()
     return 0
+    
+if __name__ == '__main__':
+    main()
     

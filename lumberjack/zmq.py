@@ -24,7 +24,7 @@ class ZMQPublisher(logging.Handler):
     
     The logger name is used as the topic selector for publishing.
     """
-    def __init__(self, interface_or_socket, context=None):
+    def __init__(self, interface_or_socket, context=None, bind=False):
         super(ZMQPublisher, self).__init__()
         if isinstance(interface_or_socket, zmq.Socket):
             self.socket = interface_or_socket
@@ -32,7 +32,10 @@ class ZMQPublisher(logging.Handler):
         else:
             self.ctx = context or zmq.Context()
             self.socket = self.ctx.socket(zmq.PUB)
-            self.socket.connect(interface_or_socket)
+            if bind:
+                self.socket.bind(interface_or_socket)
+            else:
+                self.socket.connect(interface_or_socket)
         
     def emit(self, record):
         """Emit a record over the ZMQ socket."""

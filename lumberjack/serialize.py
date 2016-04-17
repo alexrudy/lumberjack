@@ -34,7 +34,9 @@ class SerializingFormatter(logging.Formatter, object):
 class PickleFormatter(SerializingFormatter):
     """A logging formatter that generates Pickled messages for transmission."""
     
-    serializer = pickle.dumps
+    def serializer(self, record):
+        """Serialize the record."""
+        return pickle.dumps(record)
     
     @classmethod
     def deserializer(cls, s):

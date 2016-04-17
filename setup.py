@@ -24,6 +24,7 @@ setup(name="lumberjack",
       long_description=long_description,
       classifiers=classifiers,
       requires=['six'],
+      package_data = {'lumberjack.config' : ['*.cfg'] },
       entry_points={
           'console_scripts':
           ['lumberjack-listen = lumberjack.listener:main']
