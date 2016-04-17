@@ -2,7 +2,7 @@
 
 def showwarning_lumberjack(message, category, filename, lineno, line=None, file=None):
     """Adjust warnings formatting."""
-    getLogger("py.warnings").warning("{0} [{1}]".format(message, category.__name__))
+    getLogger("py.warnings").warning("{0} [{1}]".format(message, category.__name__), extra={'category':category.__name__})
     
 _showwarning_original = None
 def captureWarnings(capture=False):
