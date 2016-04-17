@@ -7,7 +7,7 @@ classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Topic :: Software Development :: Libraries",
-    "Topic :: Software Development :: Libraries :: Logging",
+    "Topic :: System :: Logging",
     "Topic :: Utilities",
 ]
 
