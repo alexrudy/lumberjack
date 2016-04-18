@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
+
+import logging
+import warnings
+
 def showwarning_lumberjack(message, category, filename, lineno, line=None, file=None):
     """Adjust warnings formatting."""
-    getLogger("py.warnings").warning("{0} [{1}]".format(message, category.__name__), extra={'category':category.__name__})
+    logging.getLogger("py.warnings").warning("{0} [{1}]".format(message, category.__name__), extra={'category':category.__name__})
     
 _showwarning_original = None
 def captureWarnings(capture=False):
@@ -11,8 +16,8 @@ def captureWarnings(capture=False):
     if capture:
         if _showwarning_original is None:
             warnings_logger = logging.getLogger("py.warnings")
-            if not logger.handlers and hasattr(logging, 'NullHandler'):
-                logger.addHandler(logging.NullHandler())
+            if not warnings_logger.handlers and hasattr(logging, 'NullHandler'):
+                warnings_logger.addHandler(logging.NullHandler())
             _showwarning_original = warnings.showwarning
             warnings.showwarning = showwarning_lumberjack
     else:
