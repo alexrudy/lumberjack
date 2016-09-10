@@ -48,28 +48,15 @@ class Controller(object):
         allowed_letters = string.digits+string.letters+string.punctuation+" "
         self._shouldrun.set()
         with ttyraw():
-            print("Press 0-5 to change logging level. Press q to quit. Press f to change filter.\r")
+            print("Press 0-5 to change logging level. Press q to quit.\r")
             while self._shouldrun.isSet():
-                ready,_,_ = select.select([sys.stdin],[],[],0.00001)
+                ready,_,_ = select.select([sys.stdin],[],[],0.1)
                 if sys.stdin in ready:
                     self.handler.acquire()
                     key = sys.stdin.read(1).lower()
                     if key is not None and key in allowed_keys:
-                        self.handler.acquire()
                         if key == "q":
                             self._shouldrun.clear()
-                        elif key == "f":
-                            print("filter by: ", end="")
-                            name = ""
-                            new_key = sys.stdin.read(1).lower()
-                            while new_key in allowed_letters:
-                                sys.stdout.write(new_key)
-                                sys.stdout.flush()
-                                name += new_key
-                                new_key = sys.stdin.read(1).lower()
-                            sys.stdout.write("\r\n")
-                            sys.stdout.flush()
-                            self.filter.name = name
                         else:
                             print("Setting level to {0}\r".format(logging.getLevelName(int(key) * 10)))
                             self.handler.setLevel(int(key) * 10)
@@ -107,6 +94,18 @@ SUPPORTED_SCHEMES = {
 def setup(mode, url):
     """Set up a logger for a given mode and URL"""
     return SUPPORTED_SCHEMES[mode](url)
+    
+def logging_level(input):
+    """Parse logging level as input."""
+    try:
+        return int(getattr(logging, input.upper()))
+    except (TypeError, AttributeError):
+        pass
+    try:
+        return int(input)
+    except TypeError:
+        raise ValueError("Logging level '{:s}' unknown.".format(input))
+    
 
 def main(*args):
     """Main function for argument parsing and running log watcher."""
@@ -114,6 +113,7 @@ def main(*args):
     parser = argparse.ArgumentParser()
     parser.add_argument("url", type=urlparse, help="A URL for a logging stream.")
     parser.add_argument("-c","--channel", type=str, help="Channel to listen for.", default="")
+    parser.add_argument("-l","--level", type=logging_level, help="Logging level", default=1)
     parser.add_argument("--pickle", action='store_const', help="Use Pickle for seralizing.", dest="serializer", const='pickle')
     parser.add_argument("--json", action='store_const', help="Use Pickle for seralizing.", dest="serializer", const='json')
     opt = parser.parse_args(args)
@@ -122,8 +122,8 @@ def main(*args):
     try:
         watcher.subscribe(opt.channel)
         watcher.start()
-        control = Controller.default()
-        control.run()
+        controller = Controller.default()
+        controller.run()
     except KeyboardInterrupt:
         print("...ending")
     finally:

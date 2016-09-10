@@ -158,5 +158,5 @@ class ColorStreamHandler(SplitStreamHandler):
     """A SplitStreamHandler which defaults to having the ColorStreamFormatter."""
     def __init__(self, format=None, datefmt=None):
         super(ColorStreamHandler, self).__init__()
-        self.setFormatter(ColorLevelFormatter(format=format, datefmt=datefmt))
+        self.setFormatter(ColorLevelFormatter(fmt=format, datefmt=datefmt))
         
