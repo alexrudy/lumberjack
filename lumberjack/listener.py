@@ -31,16 +31,51 @@ class Controller(object):
         obj = cls(logger, handler)
         return obj
     
-    def __init__(self, logger, handler):
+    def __init__(self, logger, handler, stdin=sys.stdin, stdout=sys.stdout):
         super(Controller, self).__init__()
+        
+        self._shouldrun = threading.Event()
+        
         if isinstance(logger, six.string_types):
             logger = logging.getLogger(logger)
         self.logger = logger
         self.handler = handler
         self.logger.addHandler(handler)
         self.filter = Filter()
-        self.logger.addFilter(self.filter)
-        self._shouldrun = threading.Event()
+        self.handler.addFilter(self.filter)
+        
+        self.stdin = stdin
+        self.stdout = stdout
+        
+    def echo(self, items):
+        """Echo items to stdout."""
+        self.stdout.write(items)
+        self.stdout.flush()
+        
+    def _filter_input(self):
+        """Accept input as a filter."""
+        backspaces = "\x08\x7f"
+        allowed_letters = string.digits+string.letters+string.punctuation+" "+backspaces
+        self.echo("Set filter: ")
+        key = self.stdin.read(1)
+        filtername = []
+        while key in allowed_letters:
+            if key is not None:
+                if key in backspaces:
+                    filtername.pop()
+                    self.echo("\b \b")
+                else:
+                    filtername.append(key)
+                    self.echo(key)
+            ready,_,_ = select.select([self.stdin],[],[],10)
+            if self.stdin in ready:
+                key = self.stdin.read(1)
+            else:
+                break
+        else:
+            self.filter.name = "".join(filtername)
+        self.echo("\n\rFiltering for '{:s}'\n\r".format(self.filter.name))
+        return
         
     def run(self):
         """Run the controller."""
@@ -48,19 +83,27 @@ class Controller(object):
         allowed_letters = string.digits+string.letters+string.punctuation+" "
         self._shouldrun.set()
         with ttyraw():
-            print("Press 0-5 to change logging level. Press q to quit.\r")
+            self.echo("Press 0-5 to change logging level. Press q to quit.\n\r")
             while self._shouldrun.isSet():
-                ready,_,_ = select.select([sys.stdin],[],[],0.1)
-                if sys.stdin in ready:
+                ready,_,_ = select.select([self.stdin],[],[],0.1)
+                if self.stdin in ready:
                     self.handler.acquire()
-                    key = sys.stdin.read(1).lower()
-                    if key is not None and key in allowed_keys:
-                        if key == "q":
-                            self._shouldrun.clear()
-                        else:
-                            print("Setting level to {0}\r".format(logging.getLevelName(int(key) * 10)))
-                            self.handler.setLevel(int(key) * 10)
-                    self.handler.release()
+                    try:
+                        key = self.stdin.read(1)
+                        if key is not None:
+                            if key.lower() in allowed_keys:
+                                if key.lower() == "q":
+                                    self._shouldrun.clear()
+                                elif key.lower() == "f":
+                                    self._filter_input()
+                                else:
+                                    self.echo("Setting level to {0}\n\r".format(logging.getLevelName(int(key) * 10)))
+                                    self.handler.setLevel(int(key) * 10)
+                            elif key not in string.printable:
+                                self.echo("^C")
+                                raise KeyboardInterrupt("Got unknown character {!r}.".format(key))
+                    finally:
+                        self.handler.release()
         
     
 
