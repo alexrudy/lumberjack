@@ -45,6 +45,6 @@ class Filter(logging.Filter, object):
             return 1
         elif self._name == record.name:
             return 1
-        elif record.name.find(self._name, 0, self._nlen) != 0:
+        elif not record.name.startswith(self._name):
             return 0
         return (record.name[self._nlen] == ".")
