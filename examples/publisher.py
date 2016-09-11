@@ -20,11 +20,15 @@ def main():
     parser.add_argument("url", type=str)
     parser.add_argument("name", type=str)
     parser.add_argument("-f", "--frequency", type=float, default=10.0)
+    parser.add_argument("--connect", action='store_true', help="Connect, don't bind.")
     opt = parser.parse_args()
     
     ctx = zmq.Context.instance()
     pub = ctx.socket(zmq.PUB)
-    pub.bind(opt.url)
+    if opt.connect:
+        pub.connect(opt.url)
+    else:
+        pub.bind(opt.url)
     
     handler = ZMQPublisher(pub)
     handler.setFormatter(JSONFormatter())
