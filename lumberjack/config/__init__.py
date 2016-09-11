@@ -14,6 +14,7 @@ def configure(mode, disable_existing_loggers=False):
     modefn = "{0}.cfg".format(mode) if not mode.endswith(".cfg") else mode
     for filename in ["base.cfg", modefn]:
         cfg.readfp(pkg_resources.resource_stream(__name__, filename))
+    cfg.read("lumberjack.cfg")
     cfgbuffer = StringIO()
     cfg.write(cfgbuffer)
     cfgbuffer.seek(0)
