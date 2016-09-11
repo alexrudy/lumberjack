@@ -19,7 +19,7 @@ class SerializingFormatter(logging.Formatter, object):
         """Format a record, carefully handling exc_info."""
         ei = record.exc_info
         if ei:
-            dummy = super(PickleFormatter, self).format(record) # just to get traceback text into record.exc_text
+            dummy = super(SerializingFormatter, self).format(record) # just to get traceback text into record.exc_text
             record.exc_info = None  # to avoid Unpickleable error
         s = self.serializer(record.__dict__)
         if ei:
