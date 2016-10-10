@@ -104,6 +104,7 @@ class SplitStreamHandler(logging.StreamHandler, object):
     def __init__(self):
         super(SplitStreamHandler, self).__init__()
         del self.stream
+        self._ttyraw = False
         
     def flush(self):
         """
@@ -125,6 +126,9 @@ class SplitStreamHandler(logging.StreamHandler, object):
             msg = self.format(record)
             stream = sys.stdout if record.levelno <= logging.INFO else sys.stderr
             fs = "%s\n"
+            if self._ttyraw:
+                fs = "%s\r\n"
+                msg = msg.replace("\n","\r\n")
             if not hasattr(types, "UnicodeType"): #if no unicode support...
                 stream.write(fs % msg)
             else:
