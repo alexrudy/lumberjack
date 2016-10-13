@@ -204,7 +204,7 @@ class SplitStreamHandler(logging.StreamHandler, object):
 
 class ColorStreamHandler(SplitStreamHandler):
     """A SplitStreamHandler which defaults to having the ColorStreamFormatter."""
-    def __init__(self, format=None, datefmt=None):
+    def __init__(self, fmt=None, datefmt=None):
         super(ColorStreamHandler, self).__init__()
-        self.setFormatter(ColorLevelFormatter(fmt=format, datefmt=datefmt))
+        self.setFormatter(ColorLevelFormatter(fmt=fmt, datefmt=datefmt))
         

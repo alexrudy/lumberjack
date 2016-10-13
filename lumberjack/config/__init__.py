@@ -8,9 +8,9 @@ import pkg_resources
 
 import logging.config
 
-def configure(mode, disable_existing_loggers=False, filenames=None):
+def configure(mode, disable_existing_loggers=False, cfg=None, filenames=None):
     """Configure from predefined useful default modes."""
-    cfg = configparser.ConfigParser()
+    cfg = cfg or configparser.ConfigParser()
     modefn = "{0}.cfg".format(mode) if not mode.endswith(".cfg") else mode
     for filename in ["base.cfg", modefn]:
         cfg.readfp(pkg_resources.resource_stream(__name__, filename))
