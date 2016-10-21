@@ -6,6 +6,7 @@ Helpers for serializing over ZMQ
 from __future__ import print_function, absolute_import
 
 import sys
+import six
 import logging
 import threading
 import collections
@@ -77,7 +78,7 @@ class ZMQLogWatcher(threading.Thread, object):
         obj.subscribe(channel)
         return obj
     
-    def __init__(self, interface_or_socket, context=None, deserialize=None):
+    def __init__(self, interface_or_socket, context=None, deserialize="json"):
         super(ZMQLogWatcher, self).__init__()
         if isinstance(interface_or_socket, zmq.Socket):
             self.socket = interface_or_socket
@@ -89,6 +90,8 @@ class ZMQLogWatcher(threading.Thread, object):
         
         if deserialize is None:
             self.deserialize = logging.makeLogRecord
+        elif isinstance(deserialize, six.string_types):
+            self.deserialize = serializers[deserialize].deserialize
         else:
             self.deserialize = deserialize
         

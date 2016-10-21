@@ -80,7 +80,7 @@ class Controller(object):
         
     def run(self):
         """Run the controller."""
-        allowed_keys = "012345qf"
+        allowed_keys = "012345q"
         allowed_letters = string.digits+string.letters+string.punctuation+" "
         self._shouldrun.set()
         with ttyraw():
