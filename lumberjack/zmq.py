@@ -19,7 +19,7 @@ try:
 except ImportError as e:
     print("The python bindings for ZMQ are required to use lumberjack.zmq\nPlease install pyzmq.", file=sys.stderr)
 
-class ZMQPublisher(logging.Handler):
+class ZMQPublisher(logging.Handler, object):
     """A handler which publishes log messages to a ZMQ socket.
     
     The logger name is used as the topic selector for publishing.
@@ -54,7 +54,7 @@ class ZMQPublisher(logging.Handler):
         
     
 
-class ZMQLogWatcher(threading.Thread):
+class ZMQLogWatcher(threading.Thread, object):
     """A ZMQ Log watcher. Can be run independently, or in a thread."""
     
     @classmethod

@@ -14,5 +14,5 @@ def setup_logging(mode='stream', increment=False, level=logging.NOTSET, warnings
     """A quick way to set up logging for a particular logger."""
     logging.addLevelName(5, "MSG")
     configure(mode, disable_existing_loggers = not increment, filenames = filenames)
-    logging.getLogger().setLevel(logging.NOTSET)
+    logging.getLogger().setLevel(level)
     captureWarnings(warnings)
