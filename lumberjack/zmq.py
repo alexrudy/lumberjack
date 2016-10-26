@@ -106,7 +106,7 @@ class ZMQLogWatcher(threading.Thread, object):
         
         self._signal_address = "inproc://signal-{0}".format(hex(id(self)))
         self._signal_socket = self.ctx.socket(zmq.PULL)
-        self._signal_socket.connect(self._signal_address)
+        self._signal_socket.bind(self._signal_address)
         
         # Set up polling for interrupts.
         self._poller = zmq.Poller()
