@@ -9,8 +9,8 @@ import pkg_resources
 
 import logging.config
 
-def configure(mode, disable_existing_loggers=False, cfg=None, filenames=None):
-    """Configure from predefined useful default modes."""
+def _get_configbuffer(mode, cfg=None, filenames=None):
+    """Get the configuration buffer."""
     cfg = cfg or configparser.ConfigParser()
     modefn = "{0}.cfg".format(mode) if not mode.endswith(".cfg") else mode
     for filename in ["base.cfg", modefn]:
@@ -26,4 +26,9 @@ def configure(mode, disable_existing_loggers=False, cfg=None, filenames=None):
     cfgbuffer = StringIO()
     cfg.write(cfgbuffer)
     cfgbuffer.seek(0)
+    return cfgbuffer
+
+def configure(mode, disable_existing_loggers=False, cfg=None, filenames=None):
+    """Configure from predefined useful default modes."""
+    cfgbuffer = _get_configbuffer(mode, cfg=cfg, filenames=filenames)
     return logging.config.fileConfig(cfgbuffer, disable_existing_loggers=disable_existing_loggers)
