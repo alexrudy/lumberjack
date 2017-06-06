@@ -26,7 +26,7 @@ class Controller(object):
     @classmethod
     def default(cls, logger=""):
         """Default controller, with default configuration, etc."""
-        handler = ColorStreamHandler("%(clevelname)s: %(message)s [%(name)s] [%(asctime)s]")
+        handler = ColorStreamHandler("%(clevelname)s: %(message)s [%(name)s] [%(asctime)s] [%(threadName)s/%(processName)s]")
         handler.setLevel(1)
         handler._ttyraw = True
         obj = cls(logger, handler)
