@@ -47,12 +47,12 @@ class ZMQPublisher(logging.Handler, object):
                 msg = msg.encode('utf-8')
             if isinstance(name, six.text_type):
                 name = name.encode('utf-8')
-            self.socket.send_multipart([name, msg])
         except (KeyboardInterrupt, SystemExit):
             raise
         except:
             self.handleError(record)
-            
+        else:
+            self.socket.send_multipart([name, msg])
         
     def close(self):
         """Close the ZMQ publisher."""
